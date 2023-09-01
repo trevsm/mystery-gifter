@@ -1,5 +1,7 @@
 import { Nunito } from "next/font/google";
+import "./input.css";
 import "./main.css";
+import { Providers } from "./Providers";
 
 const font = Nunito({ subsets: ["latin"] });
 
@@ -19,7 +21,7 @@ export default function RootLayout({
             height: "100%",
           }}
         >
-          {children}
+          <Providers>{children}</Providers>
         </div>
       </body>
     </html>

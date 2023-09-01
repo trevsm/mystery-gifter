@@ -5,14 +5,17 @@ import { v4 as uuidv4 } from "uuid";
 export async function POST(request: Request) {
   const body = await request.json();
 
-  if (!body.group_name || !body.username || !body.display_name) {
+  if (!body.group_name || !body.username) {
     return NextResponse.json(
-      { error: "Group name, username, and display name are required" },
+      { error: "Group name, username are required" },
       { status: 400 }
     );
   }
 
-  const { group_name, display_name, username } = body;
+  const { group_name, username } = body;
+
+  const display_name = body.display_name;
+  const isInvolved = body.isInvolved;
 
   const share_id = uuidv4().substring(0, 6);
 
@@ -38,7 +41,9 @@ export async function POST(request: Request) {
 
   const { error: insertError } = await supabase
     .from("member")
-    .insert([{ display_name, username, isAdmin: true, group_id: groupId }]);
+    .insert([
+      { username, isAdmin: true, group_id: groupId, isInvolved, display_name },
+    ]);
 
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
