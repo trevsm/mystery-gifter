@@ -163,7 +163,7 @@ export default function MyGroup() {
               display: "flex",
             }}
           >
-            <button className="custom-button alt4">Assign matches!</button>
+            <button className="custom-button alt4">Assign members</button>
           </div>
         </Paper>
       )}
