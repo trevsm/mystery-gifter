@@ -163,7 +163,9 @@ export default function MyGroup() {
               display: "flex",
             }}
           >
-            <button className="custom-button alt4">Assign members</button>
+            <button className="custom-button alt4">
+              Click to randomly <br /> assign all members
+            </button>
           </div>
         </Paper>
       )}
