@@ -7,7 +7,7 @@ import { encrypt } from "@/utils/security";
 const secret_key = process.env.SECRET_KEY as string;
 const encryption_key = process.env.ENCRYPTION_KEY as string;
 
-export async function login(request: Request) {
+async function login(request: Request) {
   const body = await request.json();
 
   if (!body.share_id || !body.username) {

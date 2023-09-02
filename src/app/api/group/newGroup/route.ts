@@ -3,7 +3,7 @@ import { withRateLimit } from "@/utils/withRateLimit";
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
-export async function newGroup(request: Request) {
+async function newGroup(request: Request) {
   const body = await request.json();
 
   if (!body.group_name || !body.username) {

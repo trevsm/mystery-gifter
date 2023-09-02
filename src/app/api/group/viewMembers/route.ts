@@ -7,7 +7,7 @@ import { getCookie } from "@/utils/getCookie";
 const encrypted_key = process.env.ENCRYPTION_KEY as string;
 const secret_key = process.env.SECRET_KEY as string;
 
-export async function getMembers(request: Request) {
+async function getMembers(request: Request) {
   const encryptedToken = getCookie("token", request);
 
   if (!encryptedToken) {
