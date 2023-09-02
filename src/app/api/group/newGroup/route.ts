@@ -13,9 +13,8 @@ export async function newGroup(request: Request) {
     );
   }
 
-  const { group_name, username } = body;
+  const { group_name, username, display_name } = body;
 
-  const display_name = body.display_name;
   const isInvolved = body.isInvolved;
 
   const share_id = uuidv4().substring(0, 6);

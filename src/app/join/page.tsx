@@ -74,7 +74,7 @@ export default function Join() {
     }
   }, [debouncedShareId, foundGroup]);
 
-  let joinLabel = "Enter a share ID";
+  let joinLabel = "Enter a group ID";
 
   if (foundGroup) joinLabel = "Join Group";
   if (loading) joinLabel = "Loading...";
@@ -103,7 +103,7 @@ export default function Join() {
         </h1>
         {!foundGroup && (
           <p style={{ fontWeight: "bold", marginBottom: ".5rem" }}>
-            Enter your group share ID
+            Enter your group ID
           </p>
         )}
 

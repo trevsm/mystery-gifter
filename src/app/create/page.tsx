@@ -4,14 +4,14 @@ import UndoIcon from "@mui/icons-material/Undo";
 import HomeIcon from "@mui/icons-material/Home";
 import FastForwardIcon from "@mui/icons-material/FastForward";
 import DoneIcon from "@mui/icons-material/Done";
-
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
-
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Link from "next/link";
-import { useState } from "react";
 import useNotificationStore from "@/stores/notificationStore";
+
 import { TextField } from "@mui/material";
+import { useState } from "react";
 
 export default function Create() {
   const [step, setStep] = useState(0);
@@ -91,16 +91,26 @@ export default function Create() {
           <h1>Group created!</h1>
           <h3>Share this Group ID for others to join.</h3>
         </div>
-        <h2
+        <div
           style={{
-            fontWeight: "bold",
-            textAlign: "center",
+            margin: "0 auto",
             cursor: "pointer",
           }}
           onClick={handleCopyClick}
         >
-          {shareId}
-        </h2>
+          <TextField
+            value={shareId}
+            helperText="Click to copy"
+            sx={{
+              width: "130px",
+              margin: "0 auto",
+              pointerEvents: "none",
+            }}
+            InputProps={{
+              endAdornment: <ContentCopyIcon />,
+            }}
+          />
+        </div>
         <div
           style={{
             display: "flex",
@@ -218,6 +228,18 @@ export default function Create() {
             autoComplete="off"
             size="small"
             helperText="Used for logging in"
+          />
+
+          <TextField
+            label="Display name"
+            type="text"
+            name="display_name"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            helperText="This will be visible to other members"
+            required
+            autoComplete="off"
+            size="small"
             sx={{
               mb: 2,
             }}
@@ -228,7 +250,7 @@ export default function Create() {
               display: "flex",
               flexDirection: "column",
               gap: ".5rem",
-              marginBottom: involved ? 0 : "1.5rem",
+              marginBottom: "1.5rem",
             }}
           >
             <span
@@ -236,7 +258,7 @@ export default function Create() {
                 fontWeight: "bold",
               }}
             >
-              Do you want to be paired with someone?
+              Do you want to be paired up?
             </span>
             <span
               style={{
@@ -246,7 +268,7 @@ export default function Create() {
                 maxWidth: "250px",
               }}
             >
-              (If checked, you will not be able to see everyone else&apos;s
+              (If checked, you will not be able to see anyone else&apos;s
               matches)
             </span>
             <div
@@ -266,23 +288,6 @@ export default function Create() {
               )}
             </div>
           </div>
-          {involved ? (
-            <TextField
-              label="Display name"
-              type="text"
-              name="display_name"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              helperText="This will be visible to other members"
-              required
-              autoComplete="off"
-              size="small"
-              sx={{
-                mb: 2,
-              }}
-            />
-          ) : null}
-
           <div
             style={{
               display: "flex",
