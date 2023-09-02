@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import HomeIcon from "@mui/icons-material/Home";
-import { useDebounce, useLocalStorage } from "usehooks-ts";
+import { useDebounce } from "usehooks-ts";
 import { useEffect, useState } from "react";
 import { Button, TextField } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import useNotificationStore from "@/stores/notificationStore";
+import { useRouter } from "next/navigation";
 
 export default function Join() {
   const [shareId, setShareId] = useState<string>("");
@@ -19,6 +20,7 @@ export default function Join() {
 
   const [username, setUsername] = useState<string>("");
   const [displayName, setDisplayName] = useState<string>("");
+  const router = useRouter();
 
   const handleJoinGroup = async () => {
     const res = await fetch("/api/group/joinGroup", {
@@ -39,7 +41,7 @@ export default function Join() {
         message: "Joined group!",
         type: "success",
       });
-      // redirect to my group page
+      router.push(`/my-group`);
     } else if (res.error) {
       addNotification({
         id: "join-group-failure",
@@ -76,8 +78,8 @@ export default function Join() {
 
   let joinLabel = "Enter a group ID";
 
+  if (loading || (shareId && !foundGroup && !error)) joinLabel = "Loading...";
   if (foundGroup) joinLabel = "Join Group";
-  if (loading) joinLabel = "Loading...";
   if (!loading && !foundGroup && error) joinLabel = "Group not found";
 
   const isButtonDisabled = joinLabel !== "Join Group";
@@ -114,7 +116,7 @@ export default function Join() {
           }}
         >
           <TextField
-            label={foundGroup ? shareId : "Share ID"}
+            label={foundGroup ? shareId : "Group ID"}
             type="text"
             value={foundGroup || shareId}
             onChange={(e) => {

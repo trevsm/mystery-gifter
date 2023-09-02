@@ -15,6 +15,12 @@ export async function newGroup(request: Request) {
 
   const { group_name, username, display_name } = body;
 
+  if (group_name.length > 30)
+    return NextResponse.json(
+      { error: "Group name is too long: max 30" },
+      { status: 400 }
+    );
+
   const isInvolved = body.isInvolved;
 
   const share_id = uuidv4().substring(0, 6);

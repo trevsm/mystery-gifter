@@ -1,56 +1,62 @@
 import { supabase } from "@/db";
 import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
+import { decrypt } from "@/utils/security";
+import { getCookie } from "@/utils/getCookie";
 
-export async function POST(request: Request) {
-  const body = await request.json();
+const encrypted_key = process.env.ENCRYPTION_KEY as string;
+const secret_key = process.env.SECRET_KEY as string;
 
-  if (!body.share_id || !body.username) {
+export async function getMembers(request: Request) {
+  const encryptedToken = getCookie("token", request);
+
+  if (!encryptedToken) {
     return NextResponse.json(
-      { error: "Both share_id and username are required" },
-      { status: 400 }
+      { error: "Authorization token is required" },
+      { status: 401 }
     );
   }
-  const { share_id, username } = body;
 
-  const { data: groups, error: groupError } = await supabase
-    .from("group")
-    .select("id")
-    .eq("share_id", share_id)
-    .limit(1);
+  const decryptedToken = decrypt(encryptedToken, encrypted_key);
 
-  if (groupError || !groups || groups.length === 0) {
-    return NextResponse.json({ error: "Group not found" }, { status: 404 });
+  let decoded;
+  try {
+    decoded = jwt.verify(decryptedToken, secret_key);
+  } catch (error) {
+    return NextResponse.json({ error: "Invalid token" }, { status: 403 });
   }
 
-  const group_id = groups[0].id;
+  const { username, group_id } = decoded as any;
 
-  const { data: members, error: memberError } = await supabase
+  const { data: userInGroup, error } = await supabase
     .from("member")
-    .select("display_name")
-    .eq("group_id", group_id)
+    .select("username")
     .eq("username", username)
+    .eq("group_id", group_id)
     .limit(1);
 
-  if (memberError || !members || members.length === 0) {
+  if (error || !userInGroup || userInGroup.length === 0) {
     return NextResponse.json(
-      { error: "Member not found in the group" },
-      { status: 404 }
+      { error: "User not found in group" },
+      { status: 403 }
     );
   }
 
-  const { data: allMembers, error: allMembersError } = await supabase
+  const { data: members, error: fetchError } = await supabase
     .from("member")
     .select("display_name")
     .eq("group_id", group_id);
 
-  if (allMembersError) {
+  if (fetchError || !members) {
     return NextResponse.json(
-      { error: allMembersError.message },
+      { error: "Could not fetch members" },
       { status: 500 }
     );
   }
 
-  const memberNames = allMembers?.map((member) => member.display_name);
+  const displayNames = members.map((member) => member.display_name);
 
-  return NextResponse.json({ members: memberNames });
+  return NextResponse.json({ members: displayNames });
 }
+
+export const GET = getMembers;

@@ -1,6 +1,11 @@
 import { supabase } from "@/db";
 import { withRateLimit } from "@/utils/withRateLimit";
 import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
+import { encrypt } from "@/utils/security";
+
+const secret_key = process.env.SECRET_KEY as string;
+const encryption_key = process.env.ENCRYPTION_KEY as string;
 
 export async function login(request: Request) {
   const body = await request.json();
@@ -44,7 +49,20 @@ export async function login(request: Request) {
     );
   }
 
-  return NextResponse.json({ message: "Login successful" });
+  const token = jwt.sign({ username, group_id }, secret_key, {
+    expiresIn: "1h",
+  });
+
+  const encryptedToken = encrypt(token, encryption_key);
+
+  const cookie = `token=${encryptedToken}; Path=/; HttpOnly; Secure; SameSite=Strict`;
+
+  return NextResponse.json(
+    {
+      message: "Login successful",
+    },
+    { status: 200, headers: { "Set-Cookie": cookie } }
+  );
 }
 
 export const POST = withRateLimit(login);

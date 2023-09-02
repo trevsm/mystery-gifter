@@ -1,6 +1,6 @@
 import { Nunito } from "next/font/google";
-import "./main.css";
 import { Providers } from "./Providers";
+import "./main.css";
 
 export const font = Nunito({ subsets: ["latin"] });
 
