@@ -1,7 +1,8 @@
 import { supabase } from "@/db";
+import { withRateLimit } from "@/utils/withRateLimit";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+async function joinGroup(request: Request) {
   const body = await request.json(); // Parse the request body
 
   if (!body.share_id || !body.username || !body.display_name) {
@@ -58,3 +59,5 @@ export async function POST(request: Request) {
     message: "Member added successfully",
   });
 }
+
+export const POST = withRateLimit(joinGroup);

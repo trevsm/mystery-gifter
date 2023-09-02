@@ -1,7 +1,8 @@
 import { supabase } from "@/db";
+import { withRateLimit } from "@/utils/withRateLimit";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+export async function login(request: Request) {
   const body = await request.json();
 
   if (!body.share_id || !body.username) {
@@ -45,3 +46,5 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ message: "Login successful" });
 }
+
+export const POST = withRateLimit(login);

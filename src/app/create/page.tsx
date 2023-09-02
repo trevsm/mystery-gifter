@@ -11,6 +11,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import Link from "next/link";
 import { useState } from "react";
 import useNotificationStore from "@/stores/notificationStore";
+import { TextField } from "@mui/material";
 
 export default function Create() {
   const [step, setStep] = useState(0);
@@ -122,16 +123,10 @@ export default function Create() {
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "1rem",
+          gap: "2rem",
         }}
       >
-        <Link
-          href="/"
-          className="button alt3"
-          style={{
-            marginBottom: "1rem",
-          }}
-        >
+        <Link href="/" className="button alt3">
           Go home <HomeIcon fontSize="small" />
         </Link>
 
@@ -140,7 +135,6 @@ export default function Create() {
           <p
             style={{
               fontWeight: "bold",
-              marginBottom: 0,
             }}
           >
             Lets get started!
@@ -152,41 +146,28 @@ export default function Create() {
             setStep(1);
           }}
         >
-          <label
-            style={{
-              marginBottom: "1rem",
+          <TextField
+            label="Group name"
+            type="text"
+            name="name"
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+            required
+            autoComplete="off"
+            size="small"
+            helperText="Name your group something fun or meaningful"
+            sx={{
+              mb: 2,
             }}
+          />
+
+          <button
+            type="submit"
+            className="custom-button alt1"
+            disabled={!groupName}
           >
-            Group name:
-            <input
-              type="text"
-              name="name"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              required
-              autoComplete="off"
-            />
-          </label>
-          <div
-            style={{
-              display: "flex",
-              gap: ".5rem",
-            }}
-          >
-            <button
-              style={{
-                opacity: 0.4,
-                pointerEvents: "none",
-                filter: "grayscale(1)",
-              }}
-              className="custom-button alt1"
-            >
-              Previous <UndoIcon fontSize="small" />
-            </button>
-            <button type="submit" className="custom-button alt1">
-              Next <FastForwardIcon fontSize="small" />
-            </button>
-          </div>
+            Next <FastForwardIcon fontSize="small" />
+          </button>
         </form>
       </div>
     );
@@ -218,43 +199,29 @@ export default function Create() {
               marginBottom: "1rem",
             }}
           >
-            Continued...
+            Admin details
           </p>
         </div>
-        <h3
-          style={{
-            borderBottom: "1px solid #000",
-            width: "fit-content",
-          }}
-        >
-          Admin Setup
-        </h3>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleCreateGroup();
           }}
         >
-          <label>
-            Username:
-            <p
-              style={{
-                fontWeight: "normal",
-                fontSize: "15px",
-                color: "#727272",
-              }}
-            >
-              (Used for login)
-            </p>
-            <input
-              type="text"
-              name="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              autoComplete="off"
-            />
-          </label>
+          <TextField
+            label="Username"
+            type="text"
+            name="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            autoComplete="off"
+            size="small"
+            helperText="Used for logging in"
+            sx={{
+              mb: 2,
+            }}
+          />
 
           <div
             style={{
@@ -269,16 +236,17 @@ export default function Create() {
                 fontWeight: "bold",
               }}
             >
-              Involve me in the matchups?
+              Do you want to be paired with someone?
             </span>
             <span
               style={{
                 fontSize: "15px",
                 fontWeight: "normal",
                 color: "#727272",
+                maxWidth: "250px",
               }}
             >
-              (If checked, you will not be able <br /> to see everyone elses
+              (If checked, you will not be able to see everyone else&apos;s
               matches)
             </span>
             <div
@@ -299,21 +267,20 @@ export default function Create() {
             </div>
           </div>
           {involved ? (
-            <label
-              style={{
-                marginBottom: "1.5rem",
+            <TextField
+              label="Display name"
+              type="text"
+              name="display_name"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              helperText="This will be visible to other members"
+              required
+              autoComplete="off"
+              size="small"
+              sx={{
+                mb: 2,
               }}
-            >
-              Display name:
-              <input
-                type="text"
-                name="display_name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                required
-                autoComplete="off"
-              />
-            </label>
+            />
           ) : null}
 
           <div

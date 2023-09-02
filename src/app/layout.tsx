@@ -1,9 +1,8 @@
 import { Nunito } from "next/font/google";
-import "./input.css";
 import "./main.css";
 import { Providers } from "./Providers";
 
-const font = Nunito({ subsets: ["latin"] });
+export const font = Nunito({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,

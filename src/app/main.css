@@ -39,8 +39,23 @@ a {
   color: #202020;
 }
 
-button {
+button,
+a {
   cursor: pointer;
+  text-transform: none !important;
+  font-family: inherit !important;
+  font-weight: bold !important;
+  font-size: 15px !important;
+}
+
+button:disabled {
+  opacity: 0.6;
+  filter: grayscale(1) !important;
+  pointer-events: none;
+}
+
+.MuiInputBase-root {
+  background: white;
 }
 
 a.button,
@@ -63,6 +78,7 @@ button.custom-button {
 
 a.button:hover,
 button.custom-button:hover {
+  background-color: lightcoral;
   margin-top: 2px;
   transform: translateY(1px);
   border-bottom: 3px solid #c96e6e;
@@ -76,6 +92,7 @@ button.custom-button.alt1 {
 }
 a.button.alt1:hover,
 button.custom-button.alt1:hover {
+  background-color: cornflowerblue;
   border-bottom: 3px solid #527ecc;
 }
 
@@ -87,6 +104,7 @@ button.custom-button.alt2 {
 }
 a.button.alt2:hover,
 button.custom-button.alt2:hover {
+  background-color: lightgreen;
   border-bottom: 3px solid #6ec96e;
 }
 
@@ -98,5 +116,6 @@ button.custom-button.alt3 {
 }
 a.button.alt3:hover,
 button.custom-button.alt3:hover {
+  background-color: #ffbc83;
   border-bottom: 3px solid #ff9c4b;
 }

@@ -1,8 +1,9 @@
 import { supabase } from "@/db";
+import { withRateLimit } from "@/utils/withRateLimit";
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
-export async function POST(request: Request) {
+export async function newGroup(request: Request) {
   const body = await request.json();
 
   if (!body.group_name || !body.username) {
@@ -51,3 +52,5 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ share_id });
 }
+
+export const POST = withRateLimit(newGroup);
