@@ -21,7 +21,7 @@ async function newGroup(request: Request) {
       { status: 400 }
     );
 
-  const isInvolved = body.isInvolved;
+  const is_involved = body.is_involved;
 
   const share_id = uuidv4().substring(0, 6);
 
@@ -48,7 +48,13 @@ async function newGroup(request: Request) {
   const { error: insertError } = await supabase
     .from("member")
     .insert([
-      { username, isAdmin: true, group_id: groupId, isInvolved, display_name },
+      {
+        username,
+        is_admin: true,
+        group_id: groupId,
+        is_involved,
+        display_name,
+      },
     ]);
 
   if (insertError) {

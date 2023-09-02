@@ -56,8 +56,8 @@ async function getMembers(request: Request) {
 
   const memberList = members.map(({ display_name, is_admin, is_involved }) => ({
     displayName: display_name,
-    isAdmin: is_admin,
-    isInvolved: is_involved,
+    is_involved,
+    is_admin,
   }));
 
   return NextResponse.json({ members: memberList });

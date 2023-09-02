@@ -34,7 +34,7 @@ export default function Create() {
         group_name: groupName,
         username,
         display_name: displayName,
-        isInvolved: involved,
+        is_involved: involved,
       }),
     });
 
