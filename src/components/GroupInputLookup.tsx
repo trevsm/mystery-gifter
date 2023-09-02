@@ -22,7 +22,7 @@ export default function GroupInputLookup({
   const [_, setLoading] = loadingState;
   const [__, setError] = errorState;
 
-  const debouncedShareId = useDebounce<string>(shareId, 500);
+  const debouncedShareId = useDebounce<string>(shareId, 1500);
 
   useEffect(() => {
     const getGroupNameFromId = async (id: string) => {

@@ -55,23 +55,62 @@ export default function Create() {
     }
   };
 
+  const successAlert = () => {
+    addNotification({
+      id: "copy-group-id-success",
+      message: "Group ID copied to clipboard!",
+      type: "info",
+    });
+  };
+
+  const failedAlert = () =>
+    addNotification({
+      id: "copy-group-id-failure",
+      message: "Failed to copy group ID to clipboard.",
+      type: "error",
+    });
+
+  const fallbackAlert = () =>
+    addNotification({
+      id: "copy-group-id-failure",
+      message: "Failed to copy group ID to clipboard.",
+      type: "error",
+    });
+
   const handleCopyClick = () => {
-    navigator.clipboard
-      .writeText(shareId)
-      .then(() => {
-        addNotification({
-          id: "copy-group-id-success",
-          message: "Group ID copied to clipboard!",
-          type: "info",
-        });
-      })
-      .catch((err) => {
-        addNotification({
-          id: "copy-group-id-failure",
-          message: "Failed to copy group ID to clipboard.",
-          type: "error",
-        });
+    // Modern way using Clipboard API
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareId).then(successAlert, (err) => {
+        console.error("Could not copy text: ", err);
+        fallbackAlert();
       });
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = shareId;
+
+      // Avoid scrolling to the bottom
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.position = "fixed";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const successful = document.execCommand("copy");
+        if (successful) {
+          successAlert();
+        } else {
+          failedAlert();
+        }
+      } catch (err) {
+        console.error("Unable to copy", err);
+      }
+
+      document.body.removeChild(textArea);
+    }
   };
 
   if (shareId)

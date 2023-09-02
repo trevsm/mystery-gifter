@@ -59,4 +59,4 @@ export async function getMembers(request: Request) {
   return NextResponse.json({ members: displayNames });
 }
 
-export const GET = getMembers;
+export const POST = getMembers;

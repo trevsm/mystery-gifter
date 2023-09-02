@@ -12,7 +12,7 @@ export default function MyGroup() {
 
   const getMembers = async () => {
     const res = await fetch("/api/group/viewMembers", {
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         credentials: "include",
