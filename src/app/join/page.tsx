@@ -2,25 +2,33 @@
 
 import Link from "next/link";
 import HomeIcon from "@mui/icons-material/Home";
-import { useDebounce } from "usehooks-ts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button, TextField } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
 import useNotificationStore from "@/stores/notificationStore";
 import { useRouter } from "next/navigation";
+import useGroupInputLookup, {
+  actionButtonProps,
+} from "@/components/GroupInputLookup";
+import GroupInputLookup from "@/components/GroupInputLookup";
 
 export default function Join() {
-  const [shareId, setShareId] = useState<string>("");
-  const debouncedShareId = useDebounce<string>(shareId, 500);
-  const [loading, setLoading] = useState<boolean>(false);
   const { addNotification } = useNotificationStore();
-
-  const [foundGroup, setFoundGroup] = useState<string>();
-  const [error, setError] = useState<string>();
 
   const [username, setUsername] = useState<string>("");
   const [displayName, setDisplayName] = useState<string>("");
   const router = useRouter();
+
+  const foundGroupState = useState<string>("");
+  const [foundGroup] = foundGroupState;
+
+  const shareIdState = useState<string>("");
+  const [shareId] = shareIdState;
+
+  const loadingState = useState<boolean>(false);
+  const [loading] = loadingState;
+
+  const errorState = useState<string>();
+  const [error] = errorState;
 
   const handleJoinGroup = async () => {
     const res = await fetch("/api/group/joinGroup", {
@@ -29,7 +37,7 @@ export default function Join() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        share_id: debouncedShareId,
+        share_id: shareId,
         username,
         display_name: displayName,
       }),
@@ -51,38 +59,13 @@ export default function Join() {
     }
   };
 
-  useEffect(() => {
-    const getGroupNameFromId = async (id: string) => {
-      setLoading(true);
-
-      const response = await fetch(`/api/group/getGroupName`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ share_id: id }),
-      });
-      const data = await response.json();
-      setLoading(false);
-      if (data.groupName) setFoundGroup(data.groupName);
-      else {
-        setFoundGroup("");
-        setError(data.error);
-      }
-    };
-
-    if (debouncedShareId && !foundGroup) {
-      getGroupNameFromId(debouncedShareId);
-    }
-  }, [debouncedShareId, foundGroup]);
-
-  let joinLabel = "Enter a group ID";
-
-  if (loading || (shareId && !foundGroup && !error)) joinLabel = "Loading...";
-  if (foundGroup) joinLabel = "Join Group";
-  if (!loading && !foundGroup && error) joinLabel = "Group not found";
-
-  const isButtonDisabled = joinLabel !== "Join Group";
+  const { disabled, label } = actionButtonProps({
+    defaultLabel: "Login",
+    shareId,
+    foundGroup,
+    loading,
+    error,
+  });
 
   return (
     <div
@@ -115,28 +98,11 @@ export default function Join() {
             handleJoinGroup();
           }}
         >
-          <TextField
-            label={foundGroup ? shareId : "Group ID"}
-            type="text"
-            value={foundGroup || shareId}
-            onChange={(e) => {
-              setError("");
-              setFoundGroup("");
-              setShareId(e.target.value);
-            }}
-            sx={{
-              mb: 3,
-              mt: 1,
-            }}
-            size="small"
-            disabled={!!foundGroup}
-            InputProps={{
-              endAdornment: foundGroup ? (
-                <CheckIcon sx={{ color: "green" }} />
-              ) : (
-                ""
-              ),
-            }}
+          <GroupInputLookup
+            shareIdState={shareIdState}
+            foundGroupState={foundGroupState}
+            loadingState={loadingState}
+            errorState={errorState}
           />
           {foundGroup && (
             <>
@@ -168,10 +134,10 @@ export default function Join() {
           )}
           <Button
             type="submit"
-            className="custom-button"
-            disabled={isButtonDisabled}
+            className="custom-button alt2"
+            disabled={disabled}
           >
-            {joinLabel}
+            {label}
           </Button>
         </form>
       </div>

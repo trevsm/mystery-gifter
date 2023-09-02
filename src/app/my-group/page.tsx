@@ -45,7 +45,7 @@ export default function MyGroup() {
       <Link href="/" className="button alt3">
         Go home <HomeIcon fontSize="small" />
       </Link>
-      <BasicDialog forcedOpen title="Login to view" />
+      <BasicDialog forcedOpen={Boolean(error)} title="Login to view" />
       <Paper
         elevation={3}
         sx={{
