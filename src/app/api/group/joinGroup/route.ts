@@ -10,26 +10,24 @@ const encryption_key = process.env.ENCRYPTION_KEY as string;
 async function joinGroup(request: Request) {
   const body = await request.json(); // Parse the request body
 
-  if (!body.share_id || !body.username || !body.display_name) {
+  if (!body.group_id || !body.username || !body.display_name) {
     return NextResponse.json(
-      { error: "share_id, username, and display_name are required" },
+      { error: "group_id, username, and display_name are required" },
       { status: 400 }
     );
   }
 
-  const { share_id, username, display_name } = body;
+  const { group_id, username, display_name } = body;
 
   const { data: groups, error: groupError } = await supabase
     .from("group")
-    .select("id")
-    .eq("share_id", share_id)
+    .select("group_id")
+    .eq("group_id", group_id)
     .limit(1);
 
   if (groupError || !groups || groups.length === 0) {
     return NextResponse.json({ error: "Group not found" }, { status: 404 });
   }
-
-  const group_id = groups[0].id;
 
   const { data: existingMembers, error: existingMemberError } = await supabase
     .from("member")
@@ -47,6 +45,27 @@ async function joinGroup(request: Request) {
   if (existingMembers && existingMembers.length > 0) {
     return NextResponse.json(
       { error: "Username already exists" },
+      { status: 409 }
+    );
+  }
+
+  const { data: existingMembers2, error: existingMemberError2 } = await supabase
+    .from("member")
+    .select("username")
+    .eq("display_name", display_name)
+    .eq("group_id", group_id)
+    .limit(1);
+
+  if (existingMemberError2) {
+    return NextResponse.json(
+      { error: existingMemberError2.message },
+      { status: 500 }
+    );
+  }
+
+  if (existingMembers2 && existingMembers2.length > 0) {
+    return NextResponse.json(
+      { error: "Display name already exists in this group" },
       { status: 409 }
     );
   }

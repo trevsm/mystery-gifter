@@ -5,21 +5,21 @@ import { NextResponse } from "next/server";
 async function getGroupName(request: Request) {
   const body = await request.json();
 
-  if (!body.share_id) {
+  if (!body.group_id) {
     return NextResponse.json(
-      { error: "share_id is required" },
+      { error: "group_id is required" },
       { status: 400 }
     );
   }
 
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const { share_id } = body;
+  const { group_id } = body;
 
   const { data: groups, error } = await supabase
     .from("group")
     .select("group_name")
-    .eq("share_id", share_id)
+    .eq("group_id", group_id)
     .limit(1);
 
   if (error || !groups || groups.length === 0) {

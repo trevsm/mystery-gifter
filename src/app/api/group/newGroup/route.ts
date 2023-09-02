@@ -23,45 +23,51 @@ async function newGroup(request: Request) {
 
   const is_involved = body.is_involved;
 
-  const share_id = uuidv4().substring(0, 6);
+  const group_id = uuidv4().substring(0, 6);
 
-  const { error } = await supabase
-    .from("group")
-    .insert([{ group_name, share_id }]);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  const { data: groups, error: groupError } = await supabase
-    .from("group")
-    .select()
-    .eq("share_id", share_id)
+  const { data: existingMembers, error: existingMemberError } = await supabase
+    .from("member")
+    .select("username")
+    .eq("username", username)
     .limit(1);
 
-  if (!groups || groups.length === 0) {
-    return NextResponse.json({ error: "Group error..." }, { status: 404 });
+  if (existingMemberError) {
+    return NextResponse.json(
+      { error: existingMemberError.message },
+      { status: 500 }
+    );
   }
 
-  const groupId = groups[0].id;
+  if (existingMembers && existingMembers.length > 0) {
+    return NextResponse.json(
+      { error: "Username already exists" },
+      { status: 409 }
+    );
+  }
 
-  const { error: insertError } = await supabase
-    .from("member")
-    .insert([
-      {
-        username,
-        is_admin: true,
-        group_id: groupId,
-        is_involved,
-        display_name,
-      },
-    ]);
+  const { error: groupError } = await supabase
+    .from("group")
+    .insert([{ group_id, group_name }]);
+
+  if (groupError) {
+    return NextResponse.json({ error: groupError.message }, { status: 500 });
+  }
+
+  const { error: insertError } = await supabase.from("member").insert([
+    {
+      username,
+      is_admin: true,
+      group_id,
+      is_involved,
+      display_name,
+    },
+  ]);
 
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ share_id });
+  return NextResponse.json({ group_id });
 }
 
 export const POST = withRateLimit(newGroup);

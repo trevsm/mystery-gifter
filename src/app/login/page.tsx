@@ -18,8 +18,8 @@ export default function Login() {
   const foundGroupState = useState<string>("");
   const [foundGroup] = foundGroupState;
 
-  const shareIdState = useState<string>("");
-  const [shareId] = shareIdState;
+  const groupIdState = useState<string>("");
+  const [groupId] = groupIdState;
 
   const loadingState = useState<boolean>(false);
   const [loading] = loadingState;
@@ -36,7 +36,7 @@ export default function Login() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        share_id: shareId,
+        group_id: groupId,
         username,
       }),
     }).then((res) => res.json());
@@ -59,7 +59,7 @@ export default function Login() {
 
   const { disabled, label } = actionButtonProps({
     defaultLabel: "Login",
-    shareId,
+    groupId,
     foundGroup,
     loading,
     error,
@@ -97,7 +97,7 @@ export default function Login() {
           }}
         >
           <GroupInputLookup
-            shareIdState={shareIdState}
+            groupIdState={groupIdState}
             foundGroupState={foundGroupState}
             loadingState={loadingState}
             errorState={errorState}

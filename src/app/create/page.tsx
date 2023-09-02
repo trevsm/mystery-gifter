@@ -22,7 +22,7 @@ export default function Create() {
   const [displayName, setDisplayName] = useState<string>();
   const [involved, setInvolved] = useState(false);
 
-  const [shareId, setShareId] = useState("");
+  const [groupId, setgroupId] = useState("");
 
   const handleCreateGroup = async () => {
     const res = await fetch("/api/group/newGroup", {
@@ -36,22 +36,21 @@ export default function Create() {
         display_name: displayName,
         is_involved: involved,
       }),
-    });
+    }).then((res) => res.json());
 
-    if (res.status === 200) {
-      const { share_id } = await res.json();
+    if (res.error) {
+      addNotification({
+        id: "create-group-failure",
+        message: res.error,
+        type: "error",
+      });
+    } else if (res.group_id) {
       addNotification({
         id: "create-group-success",
         message: "Group created!",
         type: "success",
       });
-      setShareId(share_id);
-    } else {
-      addNotification({
-        id: "create-group-failure",
-        message: "Group creation failed.",
-        type: "error",
-      });
+      setgroupId(res.group_id);
     }
   };
 
@@ -80,14 +79,14 @@ export default function Create() {
   const handleCopyClick = () => {
     // Modern way using Clipboard API
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(shareId).then(successAlert, (err) => {
+      navigator.clipboard.writeText(groupId).then(successAlert, (err) => {
         console.error("Could not copy text: ", err);
         fallbackAlert();
       });
     } else {
       // Fallback for older browsers
       const textArea = document.createElement("textarea");
-      textArea.value = shareId;
+      textArea.value = groupId;
 
       // Avoid scrolling to the bottom
       textArea.style.top = "0";
@@ -113,7 +112,7 @@ export default function Create() {
     }
   };
 
-  if (shareId)
+  if (groupId)
     return (
       <div
         style={{
@@ -138,7 +137,7 @@ export default function Create() {
           onClick={handleCopyClick}
         >
           <TextField
-            value={shareId}
+            value={groupId}
             helperText="Click to copy"
             sx={{
               width: "130px",

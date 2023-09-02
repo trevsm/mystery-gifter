@@ -6,9 +6,7 @@ import { useState } from "react";
 import { Button, TextField } from "@mui/material";
 import useNotificationStore from "@/stores/notificationStore";
 import { useRouter } from "next/navigation";
-import useGroupInputLookup, {
-  actionButtonProps,
-} from "@/components/GroupInputLookup";
+import { actionButtonProps } from "@/components/GroupInputLookup";
 import GroupInputLookup from "@/components/GroupInputLookup";
 
 export default function Join() {
@@ -21,8 +19,8 @@ export default function Join() {
   const foundGroupState = useState<string>("");
   const [foundGroup] = foundGroupState;
 
-  const shareIdState = useState<string>("");
-  const [shareId] = shareIdState;
+  const groupIdState = useState<string>("");
+  const [groupId] = groupIdState;
 
   const loadingState = useState<boolean>(false);
   const [loading] = loadingState;
@@ -37,7 +35,7 @@ export default function Join() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        share_id: shareId,
+        group_id: groupId,
         username,
         display_name: displayName,
       }),
@@ -60,8 +58,8 @@ export default function Join() {
   };
 
   const { disabled, label } = actionButtonProps({
-    defaultLabel: "Login",
-    shareId,
+    defaultLabel: "Join & Login",
+    groupId,
     foundGroup,
     loading,
     error,
@@ -99,7 +97,7 @@ export default function Join() {
           }}
         >
           <GroupInputLookup
-            shareIdState={shareIdState}
+            groupIdState={groupIdState}
             foundGroupState={foundGroupState}
             loadingState={loadingState}
             errorState={errorState}

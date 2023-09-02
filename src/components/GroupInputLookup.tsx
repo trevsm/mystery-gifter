@@ -5,12 +5,12 @@ import { TextField } from "@mui/material";
 
 export default function GroupInputLookup({
   foundGroupState,
-  shareIdState,
+  groupIdState,
   loadingState,
   errorState,
 }: {
   foundGroupState: [string, React.Dispatch<React.SetStateAction<string>>];
-  shareIdState: [string, React.Dispatch<React.SetStateAction<string>>];
+  groupIdState: [string, React.Dispatch<React.SetStateAction<string>>];
   loadingState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
   errorState: [
     string | undefined,
@@ -18,11 +18,11 @@ export default function GroupInputLookup({
   ];
 }) {
   const [foundGroup, setFoundGroup] = foundGroupState;
-  const [shareId, setShareId] = shareIdState;
+  const [groupId, setgroupId] = groupIdState;
   const [_, setLoading] = loadingState;
   const [__, setError] = errorState;
 
-  const debouncedShareId = useDebounce<string>(shareId, 1500);
+  const debouncedgroupId = useDebounce<string>(groupId, 1500);
 
   useEffect(() => {
     const getGroupNameFromId = async (id: string) => {
@@ -33,7 +33,7 @@ export default function GroupInputLookup({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ share_id: id }),
+        body: JSON.stringify({ group_id: id }),
       });
       const data = await response.json();
       setLoading(false);
@@ -45,20 +45,20 @@ export default function GroupInputLookup({
       }
     };
 
-    if (debouncedShareId && !foundGroup) {
-      getGroupNameFromId(debouncedShareId);
+    if (debouncedgroupId && !foundGroup) {
+      getGroupNameFromId(debouncedgroupId);
     }
-  }, [debouncedShareId, foundGroup]);
+  }, [debouncedgroupId, foundGroup]);
 
   return (
     <TextField
-      label={foundGroup ? shareId : "Group ID"}
+      label={foundGroup ? groupId : "Group ID"}
       type="text"
-      value={foundGroup || shareId}
+      value={foundGroup || groupId}
       onChange={(e) => {
         setError("");
         setFoundGroup("");
-        setShareId(e.target.value);
+        setgroupId(e.target.value);
       }}
       sx={{
         mb: foundGroup ? 0 : 2,
@@ -75,7 +75,7 @@ export default function GroupInputLookup({
 
 interface ActionButtonProps {
   defaultLabel: string;
-  shareId?: string;
+  groupId?: string;
   foundGroup?: string;
   loading?: boolean;
   error?: string;
@@ -83,14 +83,14 @@ interface ActionButtonProps {
 
 export const actionButtonProps = ({
   defaultLabel,
-  shareId,
+  groupId,
   foundGroup,
   loading,
   error,
 }: ActionButtonProps) => {
   let label = "Enter a group ID";
 
-  if (loading || (shareId && !foundGroup && !error)) label = "Loading...";
+  if (loading || (groupId && !foundGroup && !error)) label = "Loading...";
   if (foundGroup) label = defaultLabel;
   if (!loading && !foundGroup && error) label = "Group not found";
 
