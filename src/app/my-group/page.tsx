@@ -8,7 +8,11 @@ import BasicDialog from "@/components/BasicDialog";
 export default function MyGroup() {
   const [loadingMembers, setLoadingMembers] = useState<boolean>(true);
   const [error, setError] = useState<string>();
-  const [members, setMembers] = useState<string[]>([]);
+  const [members, setMembers] = useState<
+    {
+      displayName: string;
+    }[]
+  >([]);
 
   const getMembers = async () => {
     const res = await fetch("/api/group/viewMembers", {
@@ -34,6 +38,8 @@ export default function MyGroup() {
     getMembers();
   }, []);
 
+  console.log(!!error);
+
   return (
     <div
       style={{
@@ -45,7 +51,7 @@ export default function MyGroup() {
       <Link href="/" className="button alt3">
         Go home <HomeIcon fontSize="small" />
       </Link>
-      <BasicDialog forcedOpen={Boolean(error)} title="Login to view" />
+      <BasicDialog forcedOpen={!!error} title="Login to view" />
       <Paper
         elevation={3}
         sx={{
@@ -67,9 +73,9 @@ export default function MyGroup() {
                 </ListItem>
               ))
           ) : members.length ? (
-            members.map((member, index) => (
+            members.map(({ displayName }, index) => (
               <ListItem key={index}>
-                <Typography variant="body1">{member}</Typography>
+                <Typography variant="body1">{displayName}</Typography>
               </ListItem>
             ))
           ) : (

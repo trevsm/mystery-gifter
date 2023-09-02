@@ -44,7 +44,7 @@ async function getMembers(request: Request) {
 
   const { data: members, error: fetchError } = await supabase
     .from("member")
-    .select("display_name")
+    .select("display_name, is_admin, is_involved")
     .eq("group_id", group_id);
 
   if (fetchError || !members) {
@@ -54,9 +54,13 @@ async function getMembers(request: Request) {
     );
   }
 
-  const displayNames = members.map((member) => member.display_name);
+  const memberList = members.map(({ display_name, is_admin, is_involved }) => ({
+    displayName: display_name,
+    isAdmin: is_admin,
+    isInvolved: is_involved,
+  }));
 
-  return NextResponse.json({ members: displayNames });
+  return NextResponse.json({ members: memberList });
 }
 
 export const POST = getMembers;

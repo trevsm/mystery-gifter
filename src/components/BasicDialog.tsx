@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogTitle, Stack } from "@mui/material";
 import Link from "next/link";
 import LoginIcon from "@mui/icons-material/Login";
@@ -16,6 +16,10 @@ export default function BasicDialog({
   const handleClose = () => {
     setOpen(false);
   };
+
+  useEffect(() => {
+    if (forcedOpen) setOpen(forcedOpen);
+  }, [forcedOpen]);
 
   return (
     <Box>
