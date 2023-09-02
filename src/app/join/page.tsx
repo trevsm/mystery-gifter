@@ -130,13 +130,13 @@ export default function Join() {
               />
             </>
           )}
-          <Button
+          <button
             type="submit"
             className="custom-button alt2"
             disabled={disabled}
           >
             {label}
-          </Button>
+          </button>
         </form>
       </div>
     </div>

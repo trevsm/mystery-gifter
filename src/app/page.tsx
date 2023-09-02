@@ -3,6 +3,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import Link from "next/link";
+import GroupsIcon from "@mui/icons-material/Groups";
 
 export default function Home() {
   return (
@@ -37,9 +38,19 @@ export default function Home() {
       >
         Already in a group?
       </p>
-      <Link href="/login" className="button alt2">
-        Login <LoginIcon fontSize="small" />
-      </Link>
+      <div
+        style={{
+          display: "flex",
+          gap: ".5rem",
+        }}
+      >
+        <Link href="/login" className="button alt2">
+          Login <LoginIcon fontSize="small" />
+        </Link>
+        <Link href="/my-group" className="button alt3">
+          My Group <GroupsIcon fontSize="small" />
+        </Link>
+      </div>
     </div>
   );
 }
