@@ -30,7 +30,7 @@ async function getInfo(request: Request) {
 
   const { data: userInGroup, error } = await supabase
     .from("member")
-    .select("username, is_admin")
+    .select("username, is_admin, is_involved")
     .eq("username", username)
     .eq("group_id", group_id)
     .limit(1);
@@ -81,6 +81,7 @@ async function getInfo(request: Request) {
     me: {
       username,
       is_admin: userInGroup[0]?.is_admin,
+      is_involved: userInGroup[0]?.is_involved,
       group_name,
     },
   });

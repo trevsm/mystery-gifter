@@ -19,6 +19,7 @@ export default function MyGroup() {
     group_name: string;
     username: string;
     is_admin: boolean;
+    is_involved: boolean;
   }>();
   const [members, setMembers] = useState<
     {
@@ -128,7 +129,7 @@ export default function MyGroup() {
           )}
         </List>
       </Paper>
-      {!loadingMembers && (
+      {!loadingMembers && me?.is_involved && (
         <Paper
           elevation={3}
           style={{
@@ -162,7 +163,7 @@ export default function MyGroup() {
               display: "flex",
             }}
           >
-            <button className="custom-button alt4">Pair everyone up!</button>
+            <button className="custom-button alt4">Assign matches!</button>
           </div>
         </Paper>
       )}
