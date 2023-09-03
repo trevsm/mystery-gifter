@@ -225,6 +225,7 @@ export default function MyGroup() {
                       </span>
                     )}
                     {me?.is_admin &&
+                      !me?.is_involved &&
                       is_involved &&
                       (assigned_to ? (
                         <Tooltip
