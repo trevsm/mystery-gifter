@@ -59,15 +59,22 @@ async function getInfo(request: Request) {
   // go through each member and assign them a random member,
   // then remove that member from the pool
 
-  const assignments = memberPool.map((member) => {
-    const randomIndex = Math.floor(Math.random() * memberPool.length);
-    const randomMember = memberPool[randomIndex];
-    memberPool = memberPool.filter(
-      (member) => member.username !== randomMember.username
-    );
+  const shuffled = [...memberPool]; // Create a copy to shuffle
+
+  // Fisher-Yates (Knuth) shuffle
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  const assignments = memberPool.map((member, index) => {
+    let receiverIndex = (index + 1) % shuffled.length; // start from the next index and wrap around
+    while (shuffled[receiverIndex].username === member.username) {
+      receiverIndex = (receiverIndex + 1) % shuffled.length; // keep looking if matched with self
+    }
     return {
       giver: member.username,
-      receiver: randomMember.display_name,
+      receiver: shuffled[receiverIndex].display_name,
     };
   });
 
