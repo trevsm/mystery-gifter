@@ -46,7 +46,7 @@ async function getInfo(request: Request) {
 
   const { data: members, error: fetchError } = await supabase
     .from("member")
-    .select("display_name, is_admin, is_involved, assigned_to")
+    .select("display_name, is_admin, is_involved, assigned_to, username")
     .eq("group_id", group_id);
 
   if (fetchError || !members) {
@@ -73,7 +73,7 @@ async function getInfo(request: Request) {
   const group_name = group[0]?.group_name;
 
   const memberList = members.map(
-    ({ display_name, is_admin, is_involved, assigned_to }) => ({
+    ({ display_name, is_admin, is_involved, assigned_to, username }) => ({
       displayName: display_name,
       is_involved,
       is_admin,
@@ -81,6 +81,7 @@ async function getInfo(request: Request) {
         currentUser?.is_admin && !currentUser?.is_involved
           ? assigned_to
           : undefined,
+      username: currentUser?.is_admin ? username : undefined,
     })
   );
 
@@ -92,6 +93,7 @@ async function getInfo(request: Request) {
       is_involved: currentUser?.is_involved,
       assigned_to: currentUser?.assigned_to,
       group_name,
+      group_id,
     },
   });
 }

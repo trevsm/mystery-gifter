@@ -42,6 +42,13 @@ async function getInfo(request: Request) {
     );
   }
 
+  if (!userInGroup[0].is_admin) {
+    return NextResponse.json(
+      { error: "User is not an admin" },
+      { status: 403 }
+    );
+  }
+
   const { data: members, error: fetchError } = await supabase
     .from("member")
     .select("username, display_name, is_admin, is_involved")
@@ -55,6 +62,13 @@ async function getInfo(request: Request) {
   }
 
   let memberPool = members.filter((member) => member.is_involved);
+
+  if (memberPool.length < 2) {
+    return NextResponse.json(
+      { error: "Not enough members to assign" },
+      { status: 400 }
+    );
+  }
 
   const shuffled = [...memberPool];
 

@@ -1,6 +1,7 @@
 "use client";
 import {
   CircularProgress,
+  IconButton,
   List,
   ListItem,
   Paper,
@@ -13,11 +14,15 @@ import HomeIcon from "@mui/icons-material/Home";
 import Link from "next/link";
 import BasicDialog from "@/components/BasicDialog";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
+import AssignmentLateOutlinedIcon from "@mui/icons-material/AssignmentLateOutlined";
+import useNotificationStore from "@/stores/notificationStore";
+import CopyInput from "@/components/CopyInput";
 
 export default function MyGroup() {
   const [nextLoading, setNextLoading] = useState<boolean>(false);
   const [loadingMembers, setLoadingMembers] = useState<boolean>(true);
-  const [error, setError] = useState<string>();
+  const [infoError, setInfoError] = useState<string>();
+  const { addNotification } = useNotificationStore();
 
   const [me, setMe] = useState<{
     group_name: string;
@@ -25,6 +30,7 @@ export default function MyGroup() {
     is_admin: boolean;
     is_involved: boolean;
     assigned_to: string;
+    group_id: string;
   }>();
 
   const [members, setMembers] = useState<
@@ -33,6 +39,7 @@ export default function MyGroup() {
       is_admin: boolean;
       is_involved: boolean;
       assigned_to?: string;
+      username?: string;
     }[]
   >([]);
 
@@ -60,7 +67,7 @@ export default function MyGroup() {
       setMembers(res.members);
       setMe(res.me);
     } else if (res.error) {
-      setError(res.error);
+      setInfoError(res.error);
     }
   };
 
@@ -76,8 +83,40 @@ export default function MyGroup() {
       .then((res) => res.json())
       .catch((err) => console.log(err));
 
+    setNextLoading(false);
+
     if (res.error) {
-      setError(res.error);
+      addNotification({
+        id: "assign-error",
+        message: res.error,
+        type: "error",
+      });
+    } else {
+      getInfo();
+    }
+  };
+
+  const deleteMember = async (username: string) => {
+    setNextLoading(true);
+    const res = await fetch("/api/group/deleteMember", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        credentials: "include",
+      },
+      body: JSON.stringify({
+        delete_member_username: username,
+      }),
+    })
+      .then((res) => res.json())
+      .catch((err) => console.log(err));
+
+    if (res.error) {
+      addNotification({
+        id: "delete-error",
+        message: "Error deleting member.",
+        type: "error",
+      });
     } else {
       getInfo();
     }
@@ -98,19 +137,18 @@ export default function MyGroup() {
       <Link href="/" className="button alt3">
         Go home <HomeIcon fontSize="small" />
       </Link>
-      <div>
-        <h1
-          style={{
-            marginBottom: ".5rem",
-          }}
-        >
-          My Group
-        </h1>
-        <Typography variant="body1" sx={{ color: "#999" }}>
-          {me?.group_name}
-        </Typography>
-      </div>
-      <BasicDialog forcedOpen={!!error} title="Login to view" />
+      {me && (
+        <div>
+          <Typography variant="h5" my={2}>
+            {me?.group_name}
+          </Typography>
+          <Typography variant="body2" sx={{ color: "#999" }}>
+            Share ID:
+          </Typography>
+          <CopyInput text={me?.group_id || ""} size="small" />
+        </div>
+      )}
+      <BasicDialog forcedOpen={!!infoError} title="Login to view" />
       <Paper
         elevation={3}
         sx={{
@@ -140,7 +178,10 @@ export default function MyGroup() {
               ))
           ) : members.length ? (
             sortedMembers.map(
-              ({ displayName, is_admin, assigned_to }, index) => (
+              (
+                { displayName, is_admin, assigned_to, is_involved, username },
+                index
+              ) => (
                 <ListItem
                   key={index}
                   sx={{
@@ -148,12 +189,31 @@ export default function MyGroup() {
                   }}
                 >
                   <Typography
-                    variant="body1"
                     sx={{
+                      width: "100%",
                       display: "flex",
+                      justifyContent: "space-between",
                     }}
                   >
-                    {displayName}
+                    <span>
+                      {me?.is_admin && !is_admin && username && (
+                        <Tooltip title="Delete member" disableInteractive>
+                          <button
+                            style={{
+                              marginRight: ".5rem",
+                              padding: "2px",
+                              paddingBottom: "2px",
+                              paddingTop: "7px",
+                              lineHeight: "8px",
+                            }}
+                            onClick={() => deleteMember(username)}
+                          >
+                            ✕
+                          </button>
+                        </Tooltip>
+                      )}
+                      {displayName}
+                    </span>
                     {is_admin && (
                       <span
                         style={{
@@ -164,16 +224,30 @@ export default function MyGroup() {
                         (admin)
                       </span>
                     )}
-                    {me?.is_admin && !me?.is_involved && assigned_to && (
-                      <Tooltip
-                        title={`Assigned to ${assigned_to}`}
-                        sx={{
-                          cursor: "pointer",
-                        }}
-                      >
-                        <AssignmentIndIcon fontSize="small" />
-                      </Tooltip>
-                    )}
+                    {me?.is_admin &&
+                      is_involved &&
+                      (assigned_to ? (
+                        <Tooltip
+                          title={`Assigned to ${assigned_to}`}
+                          disableInteractive
+                          sx={{
+                            cursor: "pointer",
+                            ml: ".5rem",
+                          }}
+                        >
+                          <AssignmentIndIcon fontSize="small" />
+                        </Tooltip>
+                      ) : (
+                        <Tooltip
+                          title={`Unassigned`}
+                          sx={{
+                            cursor: "pointer",
+                            ml: ".5rem",
+                          }}
+                        >
+                          <AssignmentLateOutlinedIcon fontSize="small" />
+                        </Tooltip>
+                      ))}
                   </Typography>
                 </ListItem>
               )
