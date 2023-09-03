@@ -1,18 +1,21 @@
 "use client";
 import {
-  Button,
+  CircularProgress,
   List,
   ListItem,
   Paper,
   Skeleton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import HomeIcon from "@mui/icons-material/Home";
 import Link from "next/link";
 import BasicDialog from "@/components/BasicDialog";
+import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 
 export default function MyGroup() {
+  const [nextLoading, setNextLoading] = useState<boolean>(false);
   const [loadingMembers, setLoadingMembers] = useState<boolean>(true);
   const [error, setError] = useState<string>();
 
@@ -51,6 +54,7 @@ export default function MyGroup() {
       .catch((err) => console.log(err));
 
     setLoadingMembers(false);
+    setNextLoading(false);
 
     if (res.members && res.me) {
       setMembers(res.members);
@@ -61,6 +65,7 @@ export default function MyGroup() {
   };
 
   const makeAssignments = async () => {
+    setNextLoading(true);
     const res = await fetch("/api/group/assignMembers", {
       method: "POST",
       headers: {
@@ -120,30 +125,59 @@ export default function MyGroup() {
             overflow: "auto",
           }}
         >
-          {loadingMembers ? (
-            Array(3)
+          {loadingMembers || nextLoading ? (
+            Array(members?.length || 3)
               .fill(null)
               .map((_, index) => (
-                <ListItem key={index}>
-                  <Skeleton variant="text" width="100%" />
+                <ListItem
+                  key={index}
+                  sx={{
+                    px: 0,
+                  }}
+                >
+                  <Skeleton variant="text" width="100%" height={24} />
                 </ListItem>
               ))
           ) : members.length ? (
-            sortedMembers.map(({ displayName, is_admin }, index) => (
-              <ListItem
-                key={index}
-                sx={{
-                  px: 0,
-                }}
-              >
-                <Typography variant="body1">{displayName}</Typography>
-                {is_admin && (
-                  <Typography variant="body1" sx={{ color: "#999", ml: 1 }}>
-                    (admin)
+            sortedMembers.map(
+              ({ displayName, is_admin, assigned_to }, index) => (
+                <ListItem
+                  key={index}
+                  sx={{
+                    px: 0,
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      display: "flex",
+                    }}
+                  >
+                    {displayName}
+                    {is_admin && (
+                      <span
+                        style={{
+                          color: "#999",
+                          marginLeft: ".5rem",
+                        }}
+                      >
+                        (admin)
+                      </span>
+                    )}
+                    {me?.is_admin && !me?.is_involved && assigned_to && (
+                      <Tooltip
+                        title={`Assigned to ${assigned_to}`}
+                        sx={{
+                          cursor: "pointer",
+                        }}
+                      >
+                        <AssignmentIndIcon fontSize="small" />
+                      </Tooltip>
+                    )}
                   </Typography>
-                )}
-              </ListItem>
-            ))
+                </ListItem>
+              )
+            )
           ) : (
             <ListItem>
               <Typography variant="body1">No members</Typography>
@@ -171,7 +205,9 @@ export default function MyGroup() {
               color: "#999",
             }}
           >
-            {me.assigned_to ? (
+            {nextLoading ? (
+              <CircularProgress size={15} />
+            ) : me.assigned_to ? (
               me.assigned_to
             ) : me.is_admin ? (
               <>You have not made assignments yet.</>
@@ -193,8 +229,12 @@ export default function MyGroup() {
               display: "flex",
             }}
           >
-            <button className="custom-button alt4" onClick={makeAssignments}>
-              Assign Matches
+            <button
+              className="custom-button alt4"
+              onClick={makeAssignments}
+              disabled={nextLoading}
+            >
+              {me?.assigned_to ? "Reassign Matches" : "Assign Matches"}
             </button>
           </div>
         </Paper>

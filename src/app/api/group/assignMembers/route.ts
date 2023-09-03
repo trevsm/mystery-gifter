@@ -56,29 +56,34 @@ async function getInfo(request: Request) {
 
   let memberPool = members.filter((member) => member.is_involved);
 
-  // go through each member and assign them a random member,
-  // then remove that member from the pool
+  const shuffled = [...memberPool];
 
-  const shuffled = [...memberPool]; // Create a copy to shuffle
-
-  // Fisher-Yates (Knuth) shuffle
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
 
+  let availableReceivers = new Set(shuffled.map((_, i) => i));
+
   const assignments = memberPool.map((member, index) => {
-    let receiverIndex = (index + 1) % shuffled.length; // start from the next index and wrap around
-    while (shuffled[receiverIndex].username === member.username) {
-      receiverIndex = (receiverIndex + 1) % shuffled.length; // keep looking if matched with self
+    let receiverIndex = (index + 1) % shuffled.length;
+
+    while (
+      shuffled[receiverIndex].username === member.username ||
+      !availableReceivers.has(receiverIndex)
+    ) {
+      receiverIndex = (receiverIndex + 1) % shuffled.length;
     }
+
+    availableReceivers.delete(receiverIndex);
+
     return {
       giver: member.username,
       receiver: shuffled[receiverIndex].display_name,
     };
   });
 
-  // // for each assignment, update the database
+  // for each assignment, update the database
   for (const { giver, receiver } of assignments) {
     const { error: updateError } = await supabase
       .from("member")

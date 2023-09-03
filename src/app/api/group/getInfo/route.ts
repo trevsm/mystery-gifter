@@ -77,7 +77,10 @@ async function getInfo(request: Request) {
       displayName: display_name,
       is_involved,
       is_admin,
-      assigned_to: currentUser?.is_admin ? assigned_to : undefined,
+      assigned_to:
+        currentUser?.is_admin && !currentUser?.is_involved
+          ? assigned_to
+          : undefined,
     })
   );
 
