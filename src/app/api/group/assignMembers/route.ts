@@ -30,7 +30,7 @@ async function getInfo(request: Request) {
 
   const { data: userInGroup, error } = await supabase
     .from("member")
-    .select("username, is_admin, is_involved, assigned_to")
+    .select("username, is_admin, is_involved")
     .eq("username", username)
     .eq("group_id", group_id)
     .limit(1);
@@ -42,11 +42,9 @@ async function getInfo(request: Request) {
     );
   }
 
-  const currentUser = userInGroup[0];
-
   const { data: members, error: fetchError } = await supabase
     .from("member")
-    .select("display_name, is_admin, is_involved, assigned_to")
+    .select("username, display_name, is_admin, is_involved")
     .eq("group_id", group_id);
 
   if (fetchError || !members) {
@@ -56,40 +54,40 @@ async function getInfo(request: Request) {
     );
   }
 
-  // get group name
-  const { data: group, error: groupError } = await supabase
-    .from("group")
-    .select("group_name")
-    .eq("group_id", group_id)
-    .limit(1);
+  let memberPool = members.filter((member) => member.is_involved);
 
-  if (groupError || !group || group.length === 0) {
-    return NextResponse.json(
-      { error: "Could not fetch group name" },
-      { status: 500 }
+  // go through each member and assign them a random member,
+  // then remove that member from the pool
+
+  const assignments = memberPool.map((member) => {
+    const randomIndex = Math.floor(Math.random() * memberPool.length);
+    const randomMember = memberPool[randomIndex];
+    memberPool = memberPool.filter(
+      (member) => member.username !== randomMember.username
     );
+    return {
+      giver: member.username,
+      receiver: randomMember.display_name,
+    };
+  });
+
+  // // for each assignment, update the database
+  for (const { giver, receiver } of assignments) {
+    const { error: updateError } = await supabase
+      .from("member")
+      .update({ assigned_to: receiver })
+      .eq("username", giver)
+      .eq("group_id", group_id);
+    if (updateError) {
+      return NextResponse.json(
+        { error: "Could not update member" },
+        { status: 500 }
+      );
+    }
   }
 
-  const group_name = group[0]?.group_name;
-
-  const memberList = members.map(
-    ({ display_name, is_admin, is_involved, assigned_to }) => ({
-      displayName: display_name,
-      is_involved,
-      is_admin,
-      assigned_to: currentUser?.is_admin ? assigned_to : undefined,
-    })
-  );
-
   return NextResponse.json({
-    members: memberList,
-    me: {
-      username,
-      is_admin: currentUser?.is_admin,
-      is_involved: currentUser?.is_involved,
-      assigned_to: currentUser?.assigned_to,
-      group_name,
-    },
+    message: "Successfully assigned members",
   });
 }
 

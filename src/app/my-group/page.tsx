@@ -15,17 +15,21 @@ import BasicDialog from "@/components/BasicDialog";
 export default function MyGroup() {
   const [loadingMembers, setLoadingMembers] = useState<boolean>(true);
   const [error, setError] = useState<string>();
+
   const [me, setMe] = useState<{
     group_name: string;
     username: string;
     is_admin: boolean;
     is_involved: boolean;
+    assigned_to: string;
   }>();
+
   const [members, setMembers] = useState<
     {
       displayName: string;
       is_admin: boolean;
       is_involved: boolean;
+      assigned_to?: string;
     }[]
   >([]);
 
@@ -35,7 +39,7 @@ export default function MyGroup() {
     return 0;
   });
 
-  const getMembers = async () => {
+  const getInfo = async () => {
     const res = await fetch("/api/group/getInfo", {
       method: "POST",
       headers: {
@@ -56,8 +60,26 @@ export default function MyGroup() {
     }
   };
 
+  const makeAssignments = async () => {
+    const res = await fetch("/api/group/assignMembers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        credentials: "include",
+      },
+    })
+      .then((res) => res.json())
+      .catch((err) => console.log(err));
+
+    if (res.error) {
+      setError(res.error);
+    } else {
+      getInfo();
+    }
+  };
+
   useEffect(() => {
-    getMembers();
+    getInfo();
   }, []);
 
   return (
@@ -141,7 +163,7 @@ export default function MyGroup() {
               marginBottom: ".5rem",
             }}
           >
-            My match:
+            My assignment:
           </h3>
           <Typography
             variant="body1"
@@ -149,8 +171,16 @@ export default function MyGroup() {
               color: "#999",
             }}
           >
-            The admin of your group <br />
-            will assign you soon.
+            {me.assigned_to ? (
+              me.assigned_to
+            ) : me.is_admin ? (
+              <>You have not made assignments yet.</>
+            ) : (
+              <>
+                The admin of your group <br />
+                will assign you soon.
+              </>
+            )}
           </Typography>
         </Paper>
       )}
@@ -163,8 +193,8 @@ export default function MyGroup() {
               display: "flex",
             }}
           >
-            <button className="custom-button alt4">
-              Click to randomly <br /> assign all members
+            <button className="custom-button alt4" onClick={makeAssignments}>
+              Assign Matches
             </button>
           </div>
         </Paper>
