@@ -12,8 +12,6 @@ async function getGroupName(request: Request) {
     );
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
   const { group_id } = body;
 
   const { data: groups, error } = await supabase
